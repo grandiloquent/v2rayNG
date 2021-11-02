@@ -317,7 +317,47 @@ object Utils {
 
         return result
     }
+    fun testConnection(context: Context, guid:String): Long {
+        V2RayServiceManager.startV2rayPoint(context,guid);
+        var result: Long
+        var conn: HttpURLConnection? = null
 
+        try {
+            val url = URL("https://www.youtube.com")
+
+            conn = url.openConnection(
+                    Proxy(Proxy.Type.HTTP,
+                            InetSocketAddress("127.0.0.1", 10809))) as HttpURLConnection
+            conn.connectTimeout = 1000
+            conn.readTimeout = 1000
+            conn.setRequestProperty("Connection", "close")
+            conn.instanceFollowRedirects = false
+            conn.useCaches = false
+
+            val start = SystemClock.elapsedRealtime()
+            val code = conn.responseCode
+            val elapsed = SystemClock.elapsedRealtime() - start
+
+//            if (code == 204 || code == 200 && conn.responseLength == 0L) {
+            result = elapsed;
+//            } else {
+//                throw IOException(context.getString(R.string.connection_test_error_status_code, code))
+//            }
+        } catch (e: IOException) {
+            // network exception
+            Log.d(AppConfig.ANG_PACKAGE, "testConnection IOException: " + Log.getStackTraceString(e))
+            result = -1;
+        } catch (e: Exception) {
+            // library exception, eg sumsung
+            Log.d(AppConfig.ANG_PACKAGE, "testConnection Exception: " + Log.getStackTraceString(e))
+            result = -1;
+        } finally {
+            conn?.disconnect()
+            V2RayServiceManager.stopV2rayPoint(true);
+        }
+
+        return result
+    }
     /**
      * package path
      */

@@ -69,7 +69,7 @@ object V2RayServiceManager {
     fun startV2Ray(context: Context) {
         if (settingsStorage?.decodeBool(AppConfig.PREF_PROXY_SHARING) == true) {
             context.toast(R.string.toast_warning_pref_proxysharing_short)
-        }else{
+        } else {
             context.toast(R.string.toast_services_start)
         }
         val intent = if (settingsStorage?.decodeString(AppConfig.PREF_MODE) ?: "VPN" == "VPN") {
@@ -150,9 +150,12 @@ object V2RayServiceManager {
             v2rayPoint.configureFileContent = result.content
             v2rayPoint.domainName = config.getV2rayPointDomainAndPort()
             currentConfig = config
-            v2rayPoint.enableLocalDNS = settingsStorage?.decodeBool(AppConfig.PREF_LOCAL_DNS_ENABLED) ?: false
-            v2rayPoint.forwardIpv6 = settingsStorage?.decodeBool(AppConfig.PREF_FORWARD_IPV6) ?: false
+            v2rayPoint.enableLocalDNS = settingsStorage?.decodeBool(AppConfig.PREF_LOCAL_DNS_ENABLED)
+                    ?: false
+            v2rayPoint.forwardIpv6 = settingsStorage?.decodeBool(AppConfig.PREF_FORWARD_IPV6)
+                    ?: false
             v2rayPoint.proxyOnly = settingsStorage?.decodeString(AppConfig.PREF_MODE) ?: "VPN" != "VPN"
+
 
             try {
                 v2rayPoint.runLoop()
@@ -170,6 +173,54 @@ object V2RayServiceManager {
         }
     }
 
+    fun startV2rayPoint(context: Context,guid: String) {
+
+        val config = MmkvManager.decodeServerConfig(guid) ?: return
+        if (v2rayPoint.isRunning) {
+            GlobalScope.launch(Dispatchers.Default) {
+                try {
+                    v2rayPoint.stopLoop()
+                } catch (e: Exception) {
+                    Log.d(ANG_PACKAGE, e.toString())
+                }
+            }
+        }
+        if (!v2rayPoint.isRunning) {
+            val result = V2rayConfigUtil.getV2rayConfig(context, guid)
+            if (!result.status)
+                return
+
+
+            v2rayPoint.configureFileContent = result.content
+            v2rayPoint.domainName = config.getV2rayPointDomainAndPort()
+            currentConfig = config
+            v2rayPoint.enableLocalDNS = settingsStorage?.decodeBool(AppConfig.PREF_LOCAL_DNS_ENABLED)
+                    ?: false
+            v2rayPoint.forwardIpv6 = settingsStorage?.decodeBool(AppConfig.PREF_FORWARD_IPV6)
+                    ?: false
+            v2rayPoint.proxyOnly = settingsStorage?.decodeString(AppConfig.PREF_MODE) ?: "VPN" != "VPN"
+
+
+            try {
+                v2rayPoint.runLoop()
+            } catch (e: Exception) {
+                Log.d(ANG_PACKAGE, e.toString())
+            }
+
+        }
+    }
+    fun stopV2rayPoint(force:Boolean) {
+
+        if (v2rayPoint.isRunning) {
+            GlobalScope.launch(Dispatchers.Default) {
+                try {
+                    v2rayPoint.stopLoop()
+                } catch (e: Exception) {
+                    Log.d(ANG_PACKAGE, e.toString())
+                }
+            }
+        }
+    }
     fun stopV2rayPoint() {
         val service = serviceControl?.get()?.getService() ?: return
 

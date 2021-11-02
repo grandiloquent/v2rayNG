@@ -116,7 +116,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val serverPort = outbound.getServerPort()
                 if (serverAddress != null && serverPort != null) {
                     tcpingTestScope.launch {
-                        val testResult = Utils.tcping(serverAddress, serverPort)
+                        val testResult = Utils.testConnection(getApplication(),guid);//Utils.tcping(serverAddress, serverPort)
                         launch(Dispatchers.Main) {
                             MmkvManager.encodeServerTestDelayMillis(guid, testResult)
                             updateListAction.value = serverList.indexOf(guid)

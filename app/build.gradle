@@ -25,14 +25,14 @@ android {
             minifyEnabled false
             zipAlignEnabled false
             shrinkResources false
-            ndk.abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
+            ndk.abiFilters  'arm64-v8a'
 //            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
             minifyEnabled false
             zipAlignEnabled false
             shrinkResources false
-            ndk.abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
+            ndk.abiFilters 'arm64-v8a'
         }
     }
 
@@ -44,26 +44,26 @@ android {
         jvmTarget = JavaVersion.VERSION_1_8
     }
 
-    splits {
-        abi {
-            enable true
-            reset()
-            include 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a' //select ABIs to build APKs for
-            universalApk true //generate an additional APK that contains all the ABIs
-        }
-    }
+//    splits {
+//        abi {
+//            enable true
+//            reset()
+//            include 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a' //select ABIs to build APKs for
+//            universalApk true //generate an additional APK that contains all the ABIs
+//        }
+//    }
 
     // map for the version code
-    project.ext.versionCodes = ['armeabi-v7a': 1, 'arm64-v8a': 2, 'x86': 3, 'x86_64': 4]
-
-    android.applicationVariants.all { variant ->
-        // assign different version code for each output
-        variant.outputs.each { output ->
-            output.versionCodeOverride =
-                    project.ext.versionCodes.get(output.getFilter(com.android.build.OutputFile.ABI), 0) *
-                            1000000 + android.defaultConfig.versionCode
-        }
-    }
+//    project.ext.versionCodes = ['armeabi-v7a': 1, 'arm64-v8a': 2, 'x86': 3, 'x86_64': 4]
+//
+//    android.applicationVariants.all { variant ->
+//        // assign different version code for each output
+//        variant.outputs.each { output ->
+//            output.versionCodeOverride =
+//                    project.ext.versionCodes.get(output.getFilter(com.android.build.OutputFile.ABI), 0) *
+//                            1000000 + android.defaultConfig.versionCode
+//        }
+//    }
 
     buildFeatures {
         viewBinding true
